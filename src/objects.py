@@ -1,5 +1,7 @@
 import cgi
 import json
+import markdown2
+import markdown
 
 
 class Qvnote(object):
@@ -34,17 +36,7 @@ class QvnoteContent(object):
     def get_html(self):
         html = ''
         for cell in self.cells:
-            cell_type = cell['type']
-            if cell_type == 'text':
-                html += self.parse_text(cell)
-            elif cell_type == 'code':
-                html += self.parse_code(cell)
-            elif cell_type == 'markdown':
-                html += self.parse_markdown(cell)
-            elif cell_type == 'latex':
-                html += self.parse_latex(cell)
-            elif cell_type == 'diagram':
-                html += self.parse_diagram(cell)
+            html += getattr(self, 'parse_' + cell['type'])(cell)
 
         return html
 
@@ -54,10 +46,15 @@ class QvnoteContent(object):
 
     def parse_code(self, cell):
         data = cgi.escape(cell['data'])
-        return "<div class='cell cell-code'><pre>%s</pre></div>" % data
+        return "<div class='cell cell-code'><pre><code class='lang-%s'>%s</code></pre></div>" % (cell['language'], data)
 
     def parse_markdown(self, cell):
         data = cell['data'].replace('quiver-image-url', 'resources')
+        data = markdown.markdown(data,
+                                 output_format='html5',
+                                 extensions=[
+                                   'pymdownx.github'
+                                 ])
         return "<div class='cell cell-markdown'>%s</div>" % data
 
     def parse_latex(self, cell):

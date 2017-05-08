@@ -1,6 +1,6 @@
 import argparse
-import sys
 import os
+import sys
 
 
 # parse command args
@@ -28,7 +28,7 @@ def parse_args():
         '-t',
         '--template',
         nargs=1,
-        type=file,
+        type=argparse.FileType(mode='r', encoding='UTF-8'),
         default= src_dir + '/template/index.html',
         metavar='TEMPLATE_FILE',
         help='template html file',

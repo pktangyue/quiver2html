@@ -7,7 +7,7 @@ if __name__ == '__main__':
     template = args.template
     output = args.output
     notes = args.notes
-    print template, output, notes
+    print(template, output, notes)
     for note in notes:
         parse(note, template.read(), output)
 

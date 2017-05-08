@@ -1,2 +1,40 @@
-{{title}}
-{{content}}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{title}}</title>
+  <!-- Compiled and minified CSS -->
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/css/materialize.min.css'>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css'>
+  <!--Let browser know website is optimized for mobile-->
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
+  <style>
+    .cell {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header class='container'>
+    <h2>{{title}}</h2>
+  </header>
+  <main class='container'>
+    {{content}}
+  </main>
+  <footer></footer>
+  <!-- Compiled and minified JavaScript -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.2/js/materialize.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js'></script>
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.5.2/showdown.min.js"></script>-->
+  <script>
+      hljs.initHighlightingOnLoad();
+      //$(function(){
+      //  var converter = new showdown.Converter();
+      //  converter.setFlavor('github');
+      //  $('.cell-markdown').html(function(){
+      //    return converter.makeHtml($(this).text());
+      //  });
+      //});
+  </script>
+</body>
+</html>

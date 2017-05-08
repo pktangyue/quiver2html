@@ -1,7 +1,5 @@
 import json
 import os
-from urllib import quote_plus
-import codecs
 
 from objects import Qvnote, QvnoteMeta, QvnoteContent, QvnotebookMeta
 from utils import is_qvnote, is_qvnotebook, is_qvlibrary
@@ -26,15 +24,15 @@ def parse(filename, template, output):
     elif is_qvlibrary(filename):
         parse_qvlibrary(path, template, output)
     else:
-        print 'not support path: %s' % filename
+        print('not support path: %s' % filename)
 
 
 def parse_qvnote(path, template, output):
-    with open(os.path.join(path, 'meta.json')) as f:
+    with open(os.path.join(path, 'meta.json'), encoding='UTF-8') as f:
         data = json.load(f)
         meta = QvnoteMeta(**data)
 
-    with open(os.path.join(path, 'content.json')) as f:
+    with open(os.path.join(path, 'content.json'), encoding='UTF-8') as f:
         data = json.load(f)
         content = QvnoteContent(**data)
 
@@ -48,18 +46,18 @@ def parse_qvnote(path, template, output):
     output_dir = _get_output_dir(output)
     output_filename = os.path.join(
         output_dir,
-        codecs.encode(qvnote.meta.title, 'utf-8') + '.html'
+        qvnote.meta.title + '.html'
     )
-    with codecs.open(output_filename, 'w', 'utf-8') as f:
+    with open(output_filename, mode='w', encoding='UTF-8') as f:
         f.write(output_html)
 
 
 def parse_qvnotebook(path, template, output):
-    with open(os.path.join(path, 'meta.json')) as f:
+    with open(os.path.join(path, 'meta.json'), encoding='UTF-8') as f:
         data = json.load(f)
         meta = QvnotebookMeta(**data)
 
-    output = _get_output_dir(output, codecs.encode(meta.name, 'utf-8'))
+    output = _get_output_dir(output, meta.name)
     for filename in os.listdir(path):
         if not is_qvnote(filename):
             continue
