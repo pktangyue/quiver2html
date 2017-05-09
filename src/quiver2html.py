@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from command import parse_args
-from parser import ParserFactory
+from objects import QvFactory
 
 if __name__ == '__main__':
     args = parse_args()
@@ -8,6 +8,6 @@ if __name__ == '__main__':
     output = args.output
     notes = args.notes
     for note in notes:
-        ParserFactory.create(note, template.read(), output).parse()
+        QvFactory.create(note).parse(template.read(), output)
 
     template.close()

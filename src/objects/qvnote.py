@@ -1,16 +1,17 @@
-import cgi
+import html
 import json
 import os
+import re
+from shutil import copy2
 
 import markdown
 
+from mixin import ParserMixin
 
-class QvNote(object):
-    _meta = None
-    _content = None
-    _resources = []
 
-    def __init__(self, path):
+class QvNote(ParserMixin):
+    def __init__(self, parent, path):
+        self._parent = parent
         self._path = path
 
         with open(os.path.join(self._path, 'meta.json'), encoding='UTF-8') as f:
@@ -21,23 +22,74 @@ class QvNote(object):
             data = json.load(f)
             self._content = QvNoteContent(**data)
 
+        self._resources = []
         resource_dir = os.path.join(self._path, 'resources')
         if os.path.exists(resource_dir):
             for resource_path in os.listdir(resource_dir):
                 self._resources.append(QvNoteResource(os.path.join(resource_dir, resource_path)))
 
-    def get_title(self):
+    @property
+    def parent(self):
+        return self._parent
+
+    @property
+    def title(self):
         return self._meta.title if self._meta else ''
 
-    def get_html(self):
-        return self._content.get_html() if self._content else ''
+    @property
+    def filename(self):
+        return self.title.replace(' ', '_') + '.html'
 
-    def get_resources(self):
+    @property
+    def uuid(self):
+        return self._meta.uuid if self._meta else ''
+
+    @property
+    def html(self):
+        return self._content.html if self._content else ''
+
+    @property
+    def resources(self):
         return self._resources
+
+    def parse(self, template, output):
+        # parse html
+        output_html = template.replace(
+            '{{title}}', self.title
+        ).replace(
+            '{{content}}', self.convert_note_url(self.convert_resource_url(self.html))
+        )
+
+        # export html file
+        output_dir = self.get_output_dir(output)
+        output_filename = os.path.join(
+            output_dir,
+            self.filename,
+        )
+        with open(output_filename, mode='w', encoding='UTF-8') as f:
+            f.write(output_html)
+
+        # export resources
+        if self.resources:
+            resources_dir = os.path.join(output_dir, 'resources')
+            os.makedirs(resources_dir, exist_ok=True)
+            for resource in self.resources:
+                copy2(resource.path, resources_dir)
+
+    def convert_resource_url(self, data):
+        return data.replace('quiver-image-url', 'resources')
+
+    def convert_note_url(self, data):
+        def repl(match):
+            uuid = match.group(1)
+            qvnote = self.parent.parent.get_qvnote(uuid)
+            return os.path.join('..', qvnote.parent.filename, qvnote.filename)
+
+        p = re.compile(r'quiver-note-url/(\w{8}(?:-\w{4}){3}-\w{12})')
+        return p.sub(repl, data)
 
 
 class QvNoteMeta(object):
-
     def __init__(self, **kwargs):
         self.created_at = kwargs.get('created_at', None)
         self.tags = kwargs.get('tags', [])
@@ -50,7 +102,6 @@ class QvNoteMeta(object):
 
 
 class QvNoteContent(object):
-
     def __init__(self, **kwargs):
         self.title = kwargs.get('title', None)
         self.cells = kwargs.get('cells', [])
@@ -58,7 +109,8 @@ class QvNoteContent(object):
     def __repr__(self):
         return json.dumps(self.__dict__)
 
-    def get_html(self):
+    @property
+    def html(self):
         html = ''
         for cell in self.cells:
             html += getattr(self, 'parse_' + cell['type'])(cell)
@@ -66,19 +118,19 @@ class QvNoteContent(object):
         return html
 
     def parse_text(self, cell):
-        data = cell['data'].replace('quiver-image-url', 'resources')
+        data = cell['data']
         return "<div class='cell cell-text'>%s</div>" % data
 
     def parse_code(self, cell):
-        data = cgi.escape(cell['data'])
+        data = html.escape(cell['data'])
         return "<div class='cell cell-code'><pre><code class='lang-%s'>%s</code></pre></div>" % (cell['language'], data)
 
     def parse_markdown(self, cell):
-        data = cell['data'].replace('quiver-image-url', 'resources')
+        data = cell['data']
         data = markdown.markdown(data,
                                  output_format='html5',
                                  extensions=[
-                                   'pymdownx.github'
+                                     'pymdownx.github'
                                  ])
         return "<div class='cell cell-markdown'>%s</div>" % data
 
@@ -94,28 +146,6 @@ class QvNoteContent(object):
 class QvNoteResource(object):
     def __init__(self, path):
         self.path = path
-
-    def __repr__(self):
-        return json.dumps(self.__dict__)
-
-
-class QvNotebook(object):
-    def __init__(self, path):
-        self._path = path
-
-        with open(os.path.join(self._path, 'meta.json'), encoding='UTF-8') as f:
-            data = json.load(f)
-            self._meta = QvNotebookMeta(**data)
-
-    def get_name(self):
-        return self._meta.name if self._meta else ''
-
-
-class QvNotebookMeta(object):
-
-    def __init__(self, **kwargs):
-        self.name = kwargs.get('name', None)
-        self.uuid = kwargs.get('uuid', None)
 
     def __repr__(self):
         return json.dumps(self.__dict__)
