@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 from command import parse_args
-from parser import parse
+from parser import ParserFactory
 
 if __name__ == '__main__':
     args = parse_args()
     template = args.template
     output = args.output
     notes = args.notes
-    print(template, output, notes)
     for note in notes:
-        parse(note, template.read(), output)
+        ParserFactory.create(note, template.read(), output).parse()
 
     template.close()
