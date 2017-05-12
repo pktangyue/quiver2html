@@ -19,7 +19,6 @@ def parse_args():
     parser.add_argument(
         '-o',
         '--output',
-        nargs=1,
         default='output',
         metavar='OUTPUT_DIR',
         help='dest output dir',
@@ -27,7 +26,6 @@ def parse_args():
     parser.add_argument(
         '-t',
         '--template',
-        nargs=1,
         type=argparse.FileType(mode='r', encoding='UTF-8'),
         default= src_dir + '/template/index.html',
         metavar='TEMPLATE_FILE',
