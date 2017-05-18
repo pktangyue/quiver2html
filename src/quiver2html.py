@@ -7,7 +7,8 @@ if __name__ == '__main__':
     template = args.template
     output = args.output
     notes = args.notes
+    classes = args.classes
     for note in notes:
-        QvFactory.create(note).parse(template.read(), output)
+        QvFactory.create(note).parse(template.read(), classes, output)
 
     template.close()

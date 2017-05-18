@@ -52,12 +52,16 @@ class QvNote(ParserMixin):
     def resources(self):
         return self._resources
 
-    def parse(self, template, output):
+    def parse(self, template, classes, output):
         # parse html
+        html = self.html
+        html = self.convert_resource_url(html)
+        html = self.convert_note_url(html)
+        html = self.add_html_tag_classes(html, classes)
         output_html = template.replace(
             '{{title}}', self.title
         ).replace(
-            '{{content}}', self.convert_note_url(self.convert_resource_url(self.html))
+            '{{content}}', html
         )
 
         # export html file
@@ -87,6 +91,11 @@ class QvNote(ParserMixin):
 
         p = re.compile(r'quiver-note-url/(\w{8}(?:-\w{4}){3}-\w{12})')
         return p.sub(repl, data)
+
+    def add_html_tag_classes(self, html, classes):
+        for key, value in classes.items():
+            html = html.replace('<{}>'.format(key), '<{} class="{}">'.format(key, value))
+        return html
 
 
 class QvNoteMeta(object):
@@ -127,11 +136,16 @@ class QvNoteContent(object):
 
     def parse_markdown(self, cell):
         data = cell['data']
-        data = markdown.markdown(data,
-                                 output_format='html5',
-                                 extensions=[
-                                     'pymdownx.github'
-                                 ])
+        data = markdown.markdown(
+            data,
+            output_format='html5',
+            extensions=[
+                'markdown.extensions.nl2br',
+                'pymdownx.github',
+                'pymdownx.highlight',
+                'pymdownx.arithmatex',
+            ],
+        )
         return "<div class='cell cell-markdown'>%s</div>" % data
 
     def parse_latex(self, cell):

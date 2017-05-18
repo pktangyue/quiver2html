@@ -37,10 +37,10 @@ class QvNotebook(ParserMixin):
     def qvnotes(self):
         return self._qvnotes
 
-    def parse(self, template, output):
+    def parse(self, template, classes, output):
         output = self.get_output_dir(output, self.name)
         for qvnote in self.qvnotes:
-            qvnote.parse(template, output)
+            qvnote.parse(template, classes, output)
 
 
 class QvNotebookMeta(object):

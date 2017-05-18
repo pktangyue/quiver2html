@@ -4,18 +4,39 @@
   <title>{{title}}</title>
   <!-- Compiled and minified CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/monokai-sublime.min.css'>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/github-gist.min.css'>
   <!--Let browser know website is optimized for mobile-->
   <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
   <style>
     .cell {
       margin-bottom: 20px;
     }
+
+    .cell-code {
+      border: .2rem solid #f7f7f9;
+    }
+
+    .blockquote p:last-child {
+      margin-bottom: 0;
+    }
+
+    th[align=left] {
+      text-align: left;
+    }
+
+    th[align=center] {
+      text-align: center;
+    }
+
+    th[align=right] {
+      text-align: right;
+    }
   </style>
 </head>
 <body>
   <header class='container'>
-    <h2>{{title}}</h2>
+    <h1>{{title}}</h1>
+    <hr>
   </header>
   <main class='container'>
     {{content}}
@@ -26,6 +47,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.5.2/showdown.min.js"></script>-->
   <script>
       hljs.initHighlightingOnLoad();

@@ -19,9 +19,9 @@ class QvLibrary(ParserMixin):
     def qvnotebooks(self):
         return self._qvnotebooks
 
-    def parse(self, template, output):
+    def parse(self, template, classes, output):
         for qvnotebook in self.qvnotebooks:
-            qvnotebook.parse(template, output)
+            qvnotebook.parse(template, classes, output)
 
     def get_qvnote(self, uuid):
         return next(
