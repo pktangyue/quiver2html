@@ -93,8 +93,9 @@ class QvNote(ParserMixin):
         return p.sub(repl, data)
 
     def add_html_tag_classes(self, html, classes):
-        for key, value in classes.items():
-            html = html.replace('<{}>'.format(key), '<{} class="{}">'.format(key, value))
+        if classes:
+            for key, value in classes.items():
+                html = html.replace('<{}>'.format(key), '<{} class="{}">'.format(key, value))
         return html
 
 
