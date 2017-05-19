@@ -4,7 +4,7 @@
   <title>{{title}}</title>
   <!-- Compiled and minified CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/github-gist.min.css'>
+  <!-- <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/github-gist.min.css'>-->
   <!--Let browser know website is optimized for mobile-->
   <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
   <style>
@@ -12,8 +12,10 @@
       margin-bottom: 20px;
     }
 
-    .cell-code {
+    .highlight {
       border: .2rem solid #f7f7f9;
+      padding: 0.5em;
+
     }
 
     .blockquote p:last-child {
@@ -46,11 +48,15 @@
   <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
-  <script src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js'></script>
+  <!--<script src='https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js'></script>-->
   <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.5.2/showdown.min.js"></script>-->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/js-sequence-diagrams/1.0.6/sequence-diagram-min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/flowchart/1.6.5/flowchart.min.js'></script>
   <script>
-      hljs.initHighlightingOnLoad();
+      //hljs.initHighlightingOnLoad();
       //$(function(){
       //  var converter = new showdown.Converter();
       //  converter.setFlavor('github');
@@ -58,6 +64,73 @@
       //    return converter.makeHtml($(this).text());
       //  });
       //});
+      (function(document) {
+          function convertUML(className, converter, settings) {
+              var charts = document.querySelectorAll("pre." + className + ",div." + className),
+                  arr    = [],
+                  i, j, maxItem, diagaram, text, curNode,
+                  isPre;
+
+              // Is there a settings object?
+              if (settings === void 0) {
+                  settings = {};
+              }
+
+              // Make sure we are dealing with an array
+              for (i = 0, maxItem = charts.length; i < maxItem; i++) arr.push(charts[i]);
+
+              // Find the UML source element and get the text
+              for (i = 0, maxItem = arr.length; i < maxItem; i++) {
+                  isPre = arr[i].tagName.toLowerCase() == "pre";
+                  if (isPre) {
+                      // Handles <pre><code>
+                      childEl = arr[i].firstChild;
+                      parentEl = childEl.parentNode;
+                      text = "";
+                      for (j = 0; j < childEl.childNodes.length; j++) {
+                          curNode = childEl.childNodes[j];
+                          whitespace = /^\s*$/;
+                          if (curNode.nodeName === "#text" && !(whitespace.test(curNode.nodeValue))) {
+                              text = curNode.nodeValue;
+                              break;
+                          }
+                      }
+                      // Do UML conversion and replace source
+                      el = document.createElement("div");
+                      el.className = className;
+                      parentEl.parentNode.insertBefore(el, parentEl);
+                      parentEl.parentNode.removeChild(parentEl);
+                  } else {
+                      // Handles <div>
+                      el = arr[i];
+                      text = el.textContent || el.innerText;
+                      if (el.innerText) {
+                          el.innerText = "";
+                      } else {
+                          el.textContent = "";
+                      }
+                  }
+                  diagram = converter.parse(text);
+                  diagram.drawSVG(el, settings);
+              }
+          };
+
+          function onReady(fn) {
+              if (document.addEventListener) {
+                  document.addEventListener("DOMContentLoaded", fn);
+              } else {
+                  document.attachEvent("onreadystatechange", function() {
+                      if (document.readyState === "interactive")
+                          fn();
+                  });
+              }
+          }
+
+          onReady(function() {
+              convertUML("uml-flowchart", flowchart);
+              convertUML("uml-sequence-diagram", Diagram, { theme: "simple" });
+          });
+      })(document);
   </script>
 </body>
 </html>

@@ -131,11 +131,21 @@ class QvNoteContent(object):
         return "<div class='cell cell-text'>%s</div>" % data
 
     def parse_code(self, cell):
-        data = html.escape(cell['data'])
-        return "<div class='cell cell-code'><pre><code class='lang-%s'>%s</code></pre></div>" % (cell['language'], data)
+        data = '```{}\n{}\n```'.format(cell['language'], cell['data'])
+        return "<div class='cell cell-code'>%s</div>" % (self._markdown_to_html(data))
 
     def parse_markdown(self, cell):
-        data = cell['data']
+        return "<div class='cell cell-markdown'>%s</div>" % self._markdown_to_html(cell['data'])
+
+    def parse_latex(self, cell):
+        return "<div class='cell cell-latex'>%s</div>" % self._markdown_to_html(cell['data'])
+
+    def parse_diagram(self, cell):
+        data = '```{}\n{}\n```'.format(cell['diagramType'], cell['data'])
+        return "<div class='cell cell-diagram'>%s</div>" % self._markdown_to_html(data)
+
+
+    def _markdown_to_html(self, data):
         data = markdown.markdown(
             data,
             output_format='html5',
@@ -145,16 +155,14 @@ class QvNoteContent(object):
                 'pymdownx.highlight',
                 'pymdownx.arithmatex',
             ],
+            extension_configs={
+                'pymdownx.highlight':{
+                    'noclasses': True,
+                    'pygments_style': 'github',
+                }
+            }
         )
-        return "<div class='cell cell-markdown'>%s</div>" % data
-
-    def parse_latex(self, cell):
-        data = cell['data']
-        return "<div class='cell cell-latex'>%s</div>" % data
-
-    def parse_diagram(self, cell):
-        data = cell['data']
-        return "<div class='cell cell-diagram'>%s</div>" % data
+        return data
 
 
 class QvNoteResource(object):
