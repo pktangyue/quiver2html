@@ -33,15 +33,25 @@
     th[align=right] {
       text-align: right;
     }
+    .navigator .left{
+      float: left;
+    }
+    .navigator .right{
+      float: right;
+    }
   </style>
 </head>
 <body>
   <header class='container'>
     <h1>{{title}}</h1>
-    <hr>
+    <hr/>
   </header>
   <main class='container'>
     {{content}}
+    <hr/>
+    <div class='navigator'>
+      {{navigator}}
+    </div>
   </main>
   <footer></footer>
   <!-- Compiled and minified JavaScript -->

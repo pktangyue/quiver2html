@@ -61,6 +61,8 @@ class QvNotebook(ParserMixin):
                 '{{title}}', self.name
             ).replace(
                 '{{content}}', self.html
+            ).replace(
+                '{{navigator}}', ''
             )
             f.write(output_html)
 

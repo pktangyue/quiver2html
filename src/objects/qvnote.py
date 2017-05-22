@@ -66,10 +66,21 @@ class QvNote(ParserMixin):
         html = self.convert_resource_url(html)
         html = self.convert_note_url(html)
         html = self.add_html_tag_classes(html, classes)
+
+        prev_note = self.get_prev_note()
+        next_note = self.get_next_note()
+        navigator = ''
+        if prev_note:
+            navigator += '<a class="left" href="{}">{}</a>'.format(prev_note.get_url(), prev_note.name)
+        if next_note:
+            navigator += '<a class="right" href="{}">{}</a>'.format(next_note.get_url(), next_note.name)
+
         output_html = template.replace(
             '{{title}}', self.name
         ).replace(
             '{{content}}', html
+        ).replace(
+            '{{navigator}}', navigator
         )
 
         # export html file
@@ -105,6 +116,22 @@ class QvNote(ParserMixin):
             for key, value in classes.items():
                 html = html.replace('<{}>'.format(key), '<{} class="{}">'.format(key, value))
         return html
+
+    def get_prev_note(self):
+        try:
+            return self.parent.qvnotes[self.parent.qvnotes.index(self) - 1]
+        except ValueError:
+            return None
+        except IndexError:
+            return None
+
+    def get_next_note(self):
+        try:
+            return self.parent.qvnotes[self.parent.qvnotes.index(self) + 1]
+        except ValueError:
+            return None
+        except IndexError:
+            return None
 
 
 class QvNoteMeta(object):

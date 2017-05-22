@@ -48,6 +48,8 @@ class QvLibrary(ParserMixin):
                 '{{title}}', 'home'
             ).replace(
                 '{{content}}', self.html
+            ).replace(
+                '{{navigator}}', ''
             )
             f.write(output_html)
 
