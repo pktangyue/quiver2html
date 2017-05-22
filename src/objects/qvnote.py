@@ -3,6 +3,7 @@ import json
 import os
 import re
 from shutil import copy2
+from datetime import datetime
 
 import markdown
 
@@ -33,12 +34,12 @@ class QvNote(ParserMixin):
         return self._parent
 
     @property
-    def title(self):
+    def name(self):
         return self._meta.title if self._meta else ''
 
     @property
     def filename(self):
-        return self.title.replace(' ', '_') + '.html'
+        return self.name.replace(' ', '_') + '.html'
 
     @property
     def uuid(self):
@@ -49,8 +50,15 @@ class QvNote(ParserMixin):
         return self._content.html if self._content else ''
 
     @property
+    def created_datetime(self):
+        return datetime.fromtimestamp(self._meta.created_at) if self._meta else datetime.min
+
+    @property
     def resources(self):
         return self._resources
+
+    def get_url(self, root='..'):
+        return os.path.join(root, self.parent.filename, self.filename)
 
     def parse(self, template, classes, output):
         # parse html
@@ -59,7 +67,7 @@ class QvNote(ParserMixin):
         html = self.convert_note_url(html)
         html = self.add_html_tag_classes(html, classes)
         output_html = template.replace(
-            '{{title}}', self.title
+            '{{title}}', self.name
         ).replace(
             '{{content}}', html
         )
@@ -87,7 +95,7 @@ class QvNote(ParserMixin):
         def repl(match):
             uuid = match.group(1)
             qvnote = self.parent.parent.get_qvnote(uuid)
-            return os.path.join('..', qvnote.parent.filename, qvnote.filename)
+            return qvnote.get_url()
 
         p = re.compile(r'quiver-note-url/(\w{8}(?:-\w{4}){3}-\w{12})')
         return p.sub(repl, data)

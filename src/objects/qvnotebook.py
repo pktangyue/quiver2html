@@ -21,6 +21,8 @@ class QvNotebook(ParserMixin):
                 continue
             self._qvnotes.append(QvNote(self, os.path.join(self._path, filename)))
 
+        self._qvnotes.sort(key=lambda v: v.created_datetime)
+
     @property
     def parent(self):
         return self._parent
@@ -34,13 +36,33 @@ class QvNotebook(ParserMixin):
         return self.name.replace(' ', '_') + '/'
 
     @property
+    def html(self):
+        ret = '<ul>'
+        for qvnote in self.qvnotes:
+            ret += '<li><a href="{}">{}</a></li>'.format(qvnote.get_url(), qvnote.name)
+
+        ret += '</ul>'
+        return ret
+
+    @property
     def qvnotes(self):
         return self._qvnotes
+
+    def get_url(self, root='.'):
+        return os.path.join(root, self.filename, 'index.html')
 
     def parse(self, template, classes, output):
         output = self.get_output_dir(output, self.name)
         for qvnote in self.qvnotes:
             qvnote.parse(template, classes, output)
+
+        with open(os.path.join(output, 'index.html'), mode='w', encoding='UTF-8') as f:
+            output_html = template.replace(
+                '{{title}}', self.name
+            ).replace(
+                '{{content}}', self.html
+            )
+            f.write(output_html)
 
 
 class QvNotebookMeta(object):
