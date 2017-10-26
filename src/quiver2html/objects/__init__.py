@@ -1,6 +1,6 @@
 import os
 
-from utils import is_qvlibrary, is_qvnote, is_qvnotebook
+from ..utils import is_qvlibrary, is_qvnote, is_qvnotebook
 from .qvlibrary import QvLibrary
 from .qvnote import QvNote
 from .qvnotebook import QvNotebook

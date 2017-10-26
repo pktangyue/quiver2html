@@ -1,17 +1,15 @@
-import html
 import json
 import os
 import re
-from shutil import copy2
 from datetime import datetime
 
 import markdown
 
-from mixin import ParserMixin
+from ..mixin import ParserMixin
 
 
 class QvNote(ParserMixin):
-    def __init__(self, parent, path):
+    def __init__(self, path, parent=None):
         self._parent = parent
         self._path = path
 
@@ -60,10 +58,10 @@ class QvNote(ParserMixin):
     def get_url(self, root='..'):
         return os.path.join(root, self.parent.filename, self.filename)
 
-    def parse(self, template, classes, output):
+    def parse(self, template, output, classes=None, resources_url=None, write_file_func=None):
         # parse html
         html = self.html
-        html = self.convert_resource_url(html)
+        html = self.convert_resource_url(html, resources_url if resources_url else '../resources')
         html = self.convert_note_url(html)
         html = self.add_html_tag_classes(html, classes)
 
@@ -75,32 +73,21 @@ class QvNote(ParserMixin):
         if next_note:
             navigator += '<a class="right" href="{}">{}</a>'.format(next_note.get_url(), next_note.name)
 
-        output_html = template.replace(
-            '{{title}}', self.name
-        ).replace(
-            '{{content}}', html
-        ).replace(
-            '{{navigator}}', navigator
-        )
+        context = {
+            'title'    : self.name,
+            'content'  : html,
+            'navigator': navigator,
+        }
 
         # export html file
-        output_dir = self.get_output_dir(output)
-        output_filename = os.path.join(
-            output_dir,
-            self.filename,
-        )
-        with open(output_filename, mode='w', encoding='UTF-8') as f:
-            f.write(output_html)
+        output = self.get_output_dir(output)
 
-        # export resources
-        if self.resources:
-            resources_dir = os.path.join(output_dir, 'resources')
-            os.makedirs(resources_dir, exist_ok=True)
-            for resource in self.resources:
-                copy2(resource.path, resources_dir)
+        write_file_func = write_file_func or self.write_file_func
 
-    def convert_resource_url(self, data):
-        return data.replace('quiver-image-url', 'resources')
+        write_file_func(template, output, self.filename, context, resources=self.resources)
+
+    def convert_resource_url(self, data, resource_url):
+        return data.replace('quiver-image-url', resource_url)
 
     def convert_note_url(self, data):
         def repl(match):
@@ -112,9 +99,9 @@ class QvNote(ParserMixin):
         return p.sub(repl, data)
 
     def add_html_tag_classes(self, html, classes):
-        if classes:
-            for key, value in classes.items():
-                html = html.replace('<{}>'.format(key), '<{} class="{}">'.format(key, value))
+        classes = classes or {}
+        for key, value in classes.items():
+            html = html.replace('<{}>'.format(key), '<{} class="{}">'.format(key, value))
         return html
 
     def get_prev_note(self):
@@ -180,7 +167,6 @@ class QvNoteContent(object):
         data = '```{}\n{}\n```'.format(cell['diagramType'], cell['data'])
         return "<div class='cell cell-diagram'>%s</div>" % self._markdown_to_html(data)
 
-
     def _markdown_to_html(self, data):
         data = markdown.markdown(
             data,
@@ -192,8 +178,8 @@ class QvNoteContent(object):
                 'pymdownx.arithmatex',
             ],
             extension_configs={
-                'pymdownx.highlight':{
-                    'noclasses': True,
+                'pymdownx.highlight': {
+                    'noclasses'     : True,
                     'pygments_style': 'github',
                 }
             }

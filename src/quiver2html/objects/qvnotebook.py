@@ -1,13 +1,13 @@
 import json
 import os
 
-from mixin import ParserMixin
-from utils import is_qvnote
 from .qvnote import QvNote
+from ..mixin import ParserMixin
+from ..utils import is_qvnote
 
 
 class QvNotebook(ParserMixin):
-    def __init__(self, parent, path):
+    def __init__(self, path, parent=None):
         self._parent = parent
         self._path = path
         self._qvnotes = []
@@ -19,7 +19,7 @@ class QvNotebook(ParserMixin):
         for filename in os.listdir(self._path):
             if not is_qvnote(filename):
                 continue
-            self._qvnotes.append(QvNote(self, os.path.join(self._path, filename)))
+            self._qvnotes.append(QvNote(os.path.join(self._path, filename), parent=self))
 
         self._qvnotes.sort(key=lambda v: v.created_datetime)
 
@@ -51,21 +51,20 @@ class QvNotebook(ParserMixin):
     def get_url(self, root='.'):
         return os.path.join(root, self.filename, 'index.html')
 
-    def parse(self, template, classes, output):
+    def parse(self, template, output, classes=None, resources_url=None, write_file_func=None):
         output = self.get_output_dir(output, self.name)
         for qvnote in self.qvnotes:
-            qvnote.parse(template, classes, output)
+            qvnote.parse(template, output, classes, resources_url, write_file_func)
 
-        with open(os.path.join(output, 'index.html'), mode='w', encoding='UTF-8') as f:
-            output_html = template.replace(
-                '{{title}}', self.name
-            ).replace(
-                '{{content}}', self.html
-            ).replace(
-                '{{navigator}}', ''
-            )
-            f.write(output_html)
+        context = {
+            'title'    : self.name,
+            'content'  : self.html,
+            'navigator': ''
+        }
 
+        write_file_func = write_file_func or self.write_file_func
+
+        write_file_func(template, output, 'index.html', context)
 
 class QvNotebookMeta(object):
     def __init__(self, **kwargs):

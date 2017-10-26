@@ -1,8 +1,8 @@
 import os
 
-from mixin import ParserMixin
-from utils import is_qvnotebook
 from .qvnotebook import QvNotebook
+from ..mixin import ParserMixin
+from ..utils import is_qvnotebook
 
 
 class QvLibrary(ParserMixin):
@@ -13,7 +13,7 @@ class QvLibrary(ParserMixin):
         for filename in os.listdir(self._path):
             if not is_qvnotebook(filename) or filename == 'Trash.qvnotebook':
                 continue
-            self._qvnotebooks.append(QvNotebook(self, os.path.join(self._path, filename)))
+            self._qvnotebooks.append(QvNotebook(os.path.join(self._path, filename), parent=self))
 
         self._qvnotebooks.sort(key=lambda v: v.name)
 
@@ -39,19 +39,19 @@ class QvLibrary(ParserMixin):
         ret += '</ul>'
         return ret
 
-    def parse(self, template, classes, output):
+    def parse(self, template, output, classes=None, resources_url=None, write_file_func=None):
         for qvnotebook in self.qvnotebooks:
-            qvnotebook.parse(template, classes, output)
+            qvnotebook.parse(template, output, classes, resources_url, write_file_func)
 
-        with open(os.path.join(output, 'index.html'), mode='w', encoding='UTF-8') as f:
-            output_html = template.replace(
-                '{{title}}', 'home'
-            ).replace(
-                '{{content}}', self.html
-            ).replace(
-                '{{navigator}}', ''
-            )
-            f.write(output_html)
+        write_file_func = write_file_func or self.write_file_func
+
+        context = {
+            'title'    : 'home',
+            'content'  : self.html,
+            'navigator': ''
+        }
+
+        write_file_func(template, output, 'index.html', context)
 
     def get_qvnote(self, uuid):
         return next(
