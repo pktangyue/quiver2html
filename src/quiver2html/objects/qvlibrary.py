@@ -48,7 +48,6 @@ class QvLibrary(ParserMixin):
         context = {
             'title'    : 'home',
             'content'  : self.html,
-            'navigator': ''
         }
 
         write_file_func(template, output, 'index.html', context)

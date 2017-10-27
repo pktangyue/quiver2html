@@ -43,15 +43,22 @@
 </head>
 <body>
   <header class='container'>
-    <h1>{{title}}</h1>
+    <h1>{{ title }}</h1>
     <hr/>
   </header>
   <main class='container'>
-    {{content}}
+    {{ content }}
     <hr/>
-    <div class='navigator'>
-      {{navigator}}
-    </div>
+    {% if navigator %}
+      <div class='navigator'>
+        {% if navigator.prev %}
+          <a class="left" href="{{ navigator.prev.url }}">{{ navigator.prev.name }}</a>
+        {% endif %}
+        {% if navigator.next %}
+          <a class="right" href="{{ navigator.next.url }}">{{ navigator.next.name }}</a>
+        {% endif %}
+      </div>
+    {% endif %}
   </main>
   <footer></footer>
   <!-- Compiled and minified JavaScript -->

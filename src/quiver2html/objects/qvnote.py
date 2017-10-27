@@ -67,11 +67,17 @@ class QvNote(ParserMixin):
 
         prev_note = self.get_prev_note()
         next_note = self.get_next_note()
-        navigator = ''
+        navigator = {}
         if prev_note:
-            navigator += '<a class="left" href="{}">{}</a>'.format(prev_note.get_url(), prev_note.name)
+            navigator['prev'] = {
+                'name': prev_note.name,
+                'url': prev_note.get_url(),
+            }
         if next_note:
-            navigator += '<a class="right" href="{}">{}</a>'.format(next_note.get_url(), next_note.name)
+            navigator['next'] = {
+                'name': next_note.name,
+                'url': next_note.get_url(),
+            }
 
         context = {
             'title'    : self.name,
@@ -105,6 +111,8 @@ class QvNote(ParserMixin):
         return html
 
     def get_prev_note(self):
+        if self.parent.qvnotes.index(self) == 0:
+            return None
         try:
             return self.parent.qvnotes[self.parent.qvnotes.index(self) - 1]
         except ValueError:

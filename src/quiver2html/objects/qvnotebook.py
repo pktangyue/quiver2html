@@ -59,7 +59,6 @@ class QvNotebook(ParserMixin):
         context = {
             'title'    : self.name,
             'content'  : self.html,
-            'navigator': ''
         }
 
         write_file_func = write_file_func or self.write_file_func
