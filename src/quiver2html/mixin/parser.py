@@ -2,8 +2,6 @@ import os
 from abc import ABCMeta, abstractmethod
 from shutil import copy2
 
-from jinja2 import Environment, FileSystemLoader
-
 
 class ParserMixin(metaclass=ABCMeta):
 
@@ -12,7 +10,7 @@ class ParserMixin(metaclass=ABCMeta):
         pass
 
     def write_file_func(self, template, output, filename, context, resources=None):
-
+        from jinja2 import Environment, FileSystemLoader
         env = Environment(loader=FileSystemLoader(os.path.dirname(template)))
         env.get_template(os.path.basename(template)).stream(context).dump(os.path.join(output, filename))
         # export resources
