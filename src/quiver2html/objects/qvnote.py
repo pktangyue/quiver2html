@@ -6,9 +6,12 @@ from datetime import datetime
 import markdown
 
 from ..mixin import ParserMixin
+from ..objects import QV_TYPES
 
 
 class QvNote(ParserMixin):
+    type = QV_TYPES.NOTE
+
     def __init__(self, path, parent=None):
         self._parent = parent
         self._path = path
@@ -48,8 +51,16 @@ class QvNote(ParserMixin):
         return self._content.html if self._content else ''
 
     @property
-    def created_datetime(self):
+    def tags(self):
+        return self._meta.tags if self._meta else []
+
+    @property
+    def create_datetime(self):
         return datetime.fromtimestamp(self._meta.created_at) if self._meta else datetime.min
+
+    @property
+    def update_datetime(self):
+        return datetime.fromtimestamp(self._meta.updated_at) if self._meta else datetime.min
 
     @property
     def resources(self):
@@ -71,15 +82,16 @@ class QvNote(ParserMixin):
         if prev_note:
             navigator['prev'] = {
                 'name': prev_note.name,
-                'url': prev_note.get_url(),
+                'url' : prev_note.get_url(),
             }
         if next_note:
             navigator['next'] = {
                 'name': next_note.name,
-                'url': next_note.get_url(),
+                'url' : next_note.get_url(),
             }
 
         context = {
+            'ins'      : self,
             'title'    : self.name,
             'content'  : html,
             'navigator': navigator,

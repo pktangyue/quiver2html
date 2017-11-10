@@ -2,10 +2,13 @@ import os
 
 from .qvnotebook import QvNotebook
 from ..mixin import ParserMixin
+from ..objects import QV_TYPES
 from ..utils import is_qvnotebook
 
 
 class QvLibrary(ParserMixin):
+    type = QV_TYPES.LIBRARY
+
     def __init__(self, path):
         self._path = path
         self._qvnotebooks = []
@@ -46,8 +49,9 @@ class QvLibrary(ParserMixin):
         write_file_func = write_file_func or self.write_file_func
 
         context = {
-            'title'    : 'home',
-            'content'  : self.html,
+            'ins'    : self,
+            'title'  : 'home',
+            'content': self.html,
         }
 
         write_file_func(template, output, 'index.html', context)

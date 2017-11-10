@@ -3,10 +3,13 @@ import os
 
 from .qvnote import QvNote
 from ..mixin import ParserMixin
+from ..objects import QV_TYPES
 from ..utils import is_qvnote
 
 
 class QvNotebook(ParserMixin):
+    type = QV_TYPES.NOTEBOOK
+
     def __init__(self, path, parent=None):
         self._parent = parent
         self._path = path
@@ -21,7 +24,7 @@ class QvNotebook(ParserMixin):
                 continue
             self._qvnotes.append(QvNote(os.path.join(self._path, filename), parent=self))
 
-        self._qvnotes.sort(key=lambda v: v.created_datetime)
+        self._qvnotes.sort(key=lambda v: v.create_datetime)
 
     @property
     def parent(self):
@@ -57,13 +60,15 @@ class QvNotebook(ParserMixin):
             qvnote.parse(template, output, classes, resources_url, write_file_func)
 
         context = {
-            'title'    : self.name,
-            'content'  : self.html,
+            'ins'    : self,
+            'title'  : self.name,
+            'content': self.html,
         }
 
         write_file_func = write_file_func or self.write_file_func
 
         write_file_func(template, output, 'index.html', context)
+
 
 class QvNotebookMeta(object):
     def __init__(self, **kwargs):

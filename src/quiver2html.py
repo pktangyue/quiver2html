@@ -3,7 +3,7 @@ import argparse
 import os
 import sys
 
-from quiver2html.objects import QvFactory
+from quiver2html.objects.factory import QvFactory
 
 
 class StoreDict(argparse.Action):
