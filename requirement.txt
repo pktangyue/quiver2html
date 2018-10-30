@@ -4,7 +4,7 @@ markdown2==2.3.4
 packaging==16.8
 Pygments==2.2.0
 pygments-style-github==0.4
-pymdown-extensions==3.1
+pymdown-extensions==6.0
 pyparsing==2.2.0
 six==1.10.0
 Jinja2==2.9.6

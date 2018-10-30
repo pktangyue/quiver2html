@@ -4,6 +4,8 @@ import re
 from datetime import datetime
 
 import markdown
+import pendulum
+import pymdownx.superfences
 
 from ..mixin import ParserMixin
 from ..objects import QV_TYPES
@@ -56,11 +58,11 @@ class QvNote(ParserMixin):
 
     @property
     def create_datetime(self):
-        return datetime.fromtimestamp(self._meta.created_at) if self._meta else datetime.min
+        return pendulum.from_timestamp(self._meta.created_at, tz='Asia/Shanghai') if self._meta else datetime.min
 
     @property
     def update_datetime(self):
-        return datetime.fromtimestamp(self._meta.updated_at) if self._meta else datetime.min
+        return pendulum.from_timestamp(self._meta.updated_at, tz='Asia/Shanghai') if self._meta else datetime.min
 
     @property
     def resources(self):
@@ -192,15 +194,33 @@ class QvNoteContent(object):
             data,
             output_format='html5',
             extensions=[
-                'markdown.extensions.nl2br',
-                'pymdownx.github',
+                'pymdownx.extra',
                 'pymdownx.highlight',
                 'pymdownx.arithmatex',
+                'pymdownx.tilde',
+                'pymdownx.tasklist',
+                'pymdownx.magiclink',
+                'pymdownx.superfences',
+                'nl2br',
             ],
             extension_configs={
                 'pymdownx.highlight': {
                     'noclasses'     : True,
                     'pygments_style': 'github',
+                },
+                "pymdownx.superfences": {
+                    "custom_fences": [
+                        {
+                            'name'  : 'flow',
+                            'class' : 'uml-flowchart',
+                            'format': pymdownx.superfences.fence_code_format
+                        },
+                        {
+                            'name'  : 'sequence',
+                            'class' : 'uml-sequence-diagram',
+                            'format': pymdownx.superfences.fence_code_format
+                        }
+                    ]
                 }
             }
         )
